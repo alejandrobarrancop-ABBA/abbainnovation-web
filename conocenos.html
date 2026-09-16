@@ -290,6 +290,33 @@
 <style id="stylableCss_qq06s">/*** VSM_CSS ***/ </style>
 <style id="compCssMappers_qq06s">/*** VSM_CSS ***/ #qq06s{width:auto;min-height:40px;}#pageBackground_qq06s{--bg-position:absolute;--fill-layer-background-overlay-color:transparent;--fill-layer-background-overlay-position:absolute;--bg-overlay-color:rgb(var(--color_11));--bg-gradient:none;}#comp-lk18txv0{--bg-overlay-color:transparent;--bg-gradient:none;min-width:980px;}#comp-lk18vj29{--height:93px;--width:664px;}#comp-lk18vj2e{--fill-opacity:0.42;--stroke-width:0;--stroke:#383838;--stroke-opacity:1;--fill:#DBDBDB;}#comp-lk18vj2h2{--min-height:162px;--text-direction:var(--wix-opt-in-direction);}#comp-ljejvfyc{--bg-overlay-color:transparent;--bg-gradient:none;min-width:980px;}#comp-ljejx8k6{--height:654px;--width:846px;}#comp-ll103afe{--fill-opacity:1;--stroke-width:0;--stroke:#383838;--stroke-opacity:1;--fill:#0E2C57;}#comp-ll103afl1{--text-direction:var(--wix-opt-in-direction);}#comp-ll103afp2{--height:216px;--width:871px;}</style>
 
+
+
+<script>
+// Intercept all link clicks BEFORE Wix's React router can intercept them
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('a');
+    if (link) {
+        let href = link.getAttribute('href');
+        if (href && !href.startsWith('http') && href !== '#') {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = href;
+        } else if (href && href.includes('abbainnovation.net')) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (href.includes('con%C3%B3cenos') || href.includes('conocenos')) {
+                window.location.href = 'conocenos.html';
+            } else if (href.includes('servicios')) {
+                window.location.href = 'servicios.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+    }
+}, true); // true = Capture phase
+</script>
+
 </head>
 <body class='' >
 <script type="text/javascript">
