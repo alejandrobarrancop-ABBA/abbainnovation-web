@@ -7,3 +7,5 @@ cuenta correo y GitHub- Verce- Supabase
 
 alejandrobarrancop@gmail.com
 Andrea0112@
+service secret role supabase
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlocGhsZmZobWZ2c21mYnl6cHhmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTU4NjYzNSwiZXhwIjoyMTA1MTYyNjM1fQ.6fKR9x4pETKUOdilsnS3CzOy9epwEdISdgvSDqlnAcw
