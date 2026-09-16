@@ -518,10 +518,10 @@ En abba innovation, analizamos detallamente los procesos y procedimientos  para 
 <div style="min-height: 60vh; display: flex; align-items: center; justify-content: center; background-color: #f4f4f4; padding: 2rem; font-family: 'Helvetica', Arial, sans-serif; z-index: 9999; position: relative;">
     <div id="login-container" style="background: white; padding: 3rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center;">
         <h2 style="color: #131875; margin-bottom: 1.5rem; font-size: 24px; font-weight: bold;">Acceso al Panel</h2>
-        <input type="text" id="username" placeholder="Usuario (admin)" style="width: 100%; padding: 12px; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;">
-        <input type="password" id="password" placeholder="Contraseña (admin)" style="width: 100%; padding: 12px; margin-bottom: 1.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;">
+        <input type="email" id="email" placeholder="Correo Electrónico" style="width: 100%; padding: 12px; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;">
+        <input type="password" id="password" placeholder="Contraseña" style="width: 100%; padding: 12px; margin-bottom: 1.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px;">
         <button onclick="login()" style="background-color: #131875; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%; transition: background 0.3s; font-weight: bold;">Entrar</button>
-        <p id="login-error" style="color: red; display: none; margin-top: 1rem;">Credenciales incorrectas. Intenta admin / admin</p>
+        <p id="login-error" style="color: red; display: none; margin-top: 1rem;">Credenciales incorrectas.</p>
     </div>
 
     <div id="admin-container" style="display: none; background: white; padding: 3rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 900px; text-align: left;">
@@ -544,7 +544,7 @@ En abba innovation, analizamos detallamente los procesos y procedimientos  para 
             <div style="border: 1px solid #e0e0e0; padding: 1.5rem; border-radius: 8px; transition: box-shadow 0.3s;">
                 <h3 style="color: #333; margin-top: 0; font-size: 18px;">Mensajes de Contacto</h3>
                 <p style="color: #666; font-size: 14px; margin-bottom: 1.5rem; line-height: 1.4;">Revisa los leads y mensajes enviados a través del formulario de contacto del sitio.</p>
-                <button style="background-color: #131875; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;" onclick="alert('Funcionalidad en desarrollo')">Ver Bandeja (3)</button>
+                <button style="background-color: #131875; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;" onclick="alert('Funcionalidad en desarrollo')">Ver Bandeja</button>
             </div>
             <div style="border: 1px solid #e0e0e0; padding: 1.5rem; border-radius: 8px; transition: box-shadow 0.3s;">
                 <h3 style="color: #333; margin-top: 0; font-size: 18px;">Configuración Global</h3>
@@ -555,24 +555,71 @@ En abba innovation, analizamos detallamente los procesos y procedimientos  para 
     </div>
 </div>
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    function login() {
-        var user = document.getElementById('username').value;
+    // REEMPLAZA ESTAS VARIABLES CON LOS DATOS DE TU PROYECTO SUPABASE
+    const SUPABASE_URL = 'AQUI_TU_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'AQUI_TU_SUPABASE_ANON_KEY';
+    
+    // Inicializar Supabase si las credenciales fueron reemplazadas
+    let supabase = null;
+    if (SUPABASE_URL !== 'AQUI_TU_SUPABASE_URL') {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    async function login() {
+        var email = document.getElementById('email').value;
         var pass = document.getElementById('password').value;
-        if (user === 'admin' && pass === 'admin') {
-            document.getElementById('login-container').style.display = 'none';
-            document.getElementById('admin-container').style.display = 'block';
-            document.getElementById('login-error').style.display = 'none';
+        
+        if (supabase) {
+            // Login real con Supabase
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: pass
+            });
+            
+            if (error) {
+                document.getElementById('login-error').innerText = "Error: " + error.message;
+                document.getElementById('login-error').style.display = 'block';
+            } else {
+                showAdminPanel();
+            }
         } else {
-            document.getElementById('login-error').style.display = 'block';
+            // Fallback (solo para pruebas locales si Supabase no esta configurado)
+            if (email === 'admin@admin.com' && pass === 'admin') {
+                showAdminPanel();
+            } else {
+                document.getElementById('login-error').innerText = "Credenciales incorrectas o Supabase no configurado.";
+                document.getElementById('login-error').style.display = 'block';
+            }
         }
     }
     
-    function logout() {
-        document.getElementById('username').value = '';
+    async function logout() {
+        if (supabase) {
+            await supabase.auth.signOut();
+        }
+        document.getElementById('email').value = '';
         document.getElementById('password').value = '';
         document.getElementById('login-container').style.display = 'block';
         document.getElementById('admin-container').style.display = 'none';
+    }
+
+    function showAdminPanel() {
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('admin-container').style.display = 'block';
+        document.getElementById('login-error').style.display = 'none';
+    }
+
+    // Comprobar si ya hay una sesión activa (solo si Supabase está activo)
+    window.onload = async function() {
+        if (supabase) {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                showAdminPanel();
+            }
+        }
     }
 </script>
 </main><footer id="SITE_FOOTER" class="HQtdHX SITE_FOOTER wixui-footer" tabindex="-1"><div class="CNHfeA"></div><div class="ZgDNL8"><div class="_c_gnD"></div><div class="G6vvJF"><div data-mesh-id="SITE_FOOTERinlineContent" data-testid="inline-content" class=""><div data-mesh-id="SITE_FOOTERinlineContent-gridContainer" data-testid="mesh-container-content"><section id="comp-iggpn6wt" class="comp-iggpn6wt CeUMmm wixui-column-strip"><div id="bgLayers_comp-iggpn6wt" data-hook="bgLayers" data-motion-part="BG_LAYER comp-iggpn6wt" class="ktMZav"><div data-testid="colorUnderlay" class="V9k0ll etGVsi"></div><div id="bgMedia_comp-iggpn6wt" data-motion-part="BG_MEDIA comp-iggpn6wt" class="etSQ9j"></div></div><div data-testid="columns" class="Ak0vpt"><div id="mediajfayf5oy1" class="mediajfayf5oy1 FDI5TK wixui-column-strip__column"><div id="bgLayers_mediajfayf5oy1" data-hook="bgLayers" data-motion-part="BG_LAYER mediajfayf5oy1" class="QG9w8P"><div data-testid="colorUnderlay" class="LNYVZi ayCf9D"></div><div id="bgMedia_mediajfayf5oy1" data-motion-part="BG_MEDIA mediajfayf5oy1" class="ROWgFb"></div></div><div data-mesh-id="mediajfayf5oy1inlineContent" data-testid="inline-content" class=""><div data-mesh-id="mediajfayf5oy1inlineContent-gridContainer" data-testid="mesh-container-content"><div id="Cntnrn" class="q9dEZ5 Cntnrn"><div class="vV1v8L wixui-box" data-testid="container-bg"></div><div data-mesh-id="CntnrninlineContent" data-testid="inline-content" class=""><div data-mesh-id="CntnrninlineContent-gridContainer" data-testid="mesh-container-content"></div></div></div><div id="WPht6-za0" class="W4V2qg WPht6-za0 wixui-image"><div data-testid="linkElement" class="apPOZK"><img loading="lazy" sizes="35px" srcset="https://static.wixstatic.com/media/b2c0a7_9b5ed4da06ba4f40a09243297c346066.png/v1/fill/w_35,h_35,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/b2c0a7_9b5ed4da06ba4f40a09243297c346066.png 1x, https://static.wixstatic.com/media/b2c0a7_9b5ed4da06ba4f40a09243297c346066.png/v1/fill/w_70,h_70,al_c,lg_1,q_85,enc_avif,quality_auto/b2c0a7_9b5ed4da06ba4f40a09243297c346066.png 2x" id="img_WPht6-za0" src="./Consultoría en Hostelería _ Abba innovation _ Panama_files/b2c0a7_9b5ed4da06ba4f40a09243297c346066.png" alt="" style="object-fit:contain;object-position:unset" class="gRkIq0 sFiSiq" width="35" height="35"></div></div><div id="WRchTxt1" class="N8MGzv _v6ohL AWXfZq PO9MfV WRchTxt1 wixui-rich-text" data-testid="richTextElement"><p class="font_9 wixui-rich-text__text" style="line-height:normal; font-size:12px;"><span style="letter-spacing:normal;" class="wixui-rich-text__text"><span class="color_12 wixui-rich-text__text"><span style="font-weight:bold;" class="wixui-rich-text__text">Call</span></span></span></p>
